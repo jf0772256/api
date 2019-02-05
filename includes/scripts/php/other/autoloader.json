@@ -1,5 +1,5 @@
 {
-    "name": "SRCL/AutoLoader",
+    "name": "JesseFender/AutoLoader",
     "type": "function",
     "description": "Load autoload file",
     "autoload": {
