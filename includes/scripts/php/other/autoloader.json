@@ -4,20 +4,7 @@
     "description": "Load autoload file",
     "autoload": {
         "files": [
-            "classes/database.class.php",
-            "models/asset.model.php",
-            "models/assetfamily.model.php",
-            "models/assettype.model.php",
-            "models/connectiontype.model.php",
-            "models/hardware.model.php",
-            "models/ipaddress.model.php",
-            "models/location.model.php",
-            "models/position.model.php",
-            "models/software.model.php",
-            "models/network.model.php",
-            "models/asset_configuration.model.php",
-            "models/software_key.model.php",
-            "models/software_package.model.php"
+            "classes/database.class.php"
         ]
     }
 }
