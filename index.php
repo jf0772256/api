@@ -8,6 +8,7 @@
   <title>API Test Page</title>
 
   <script src="./includes/scripts/js/jquery-3.3.1.min.js"></script>
+  <script src="./includes/scripts/js/overrides.js"></script>
   <script src="./includes/scripts/js/api.js"></script>
 </head>
 <body>
