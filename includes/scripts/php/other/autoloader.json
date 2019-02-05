@@ -4,7 +4,9 @@
     "description": "Load autoload file",
     "autoload": {
         "files": [
-            "classes/database.class.php"
+            "classes/database.class.php",
+            "classes/encode.class.php",
+            "classes/message.class.php"
         ]
     }
 }

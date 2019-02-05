@@ -1,32 +1,37 @@
 <?php
     namespace JesseFender\Message{
-        // intent is to use json and php to make a push notification with an ajax timed setting that will allow for passing messages to a user so long as they are "logged in"
-        // written 01/26/2018 by Jesse Fender for SRC Logistics check in system. Property of SRCL IT Department
-        require_once("database.class.php");
-        use \SRCL\Database\Database;
+        
         /**
          * PushMessage Class inteacts directly with the json file and adds, edits, reads, and deletes messages from the messages.json file.
          */
-        class PushMessage extends Database
+        class PushMessage
         {
+
+            private $dbc;
+
             /**
              * Class Constructor - also connects to the database using the supplied parameters
              *
-             * @param string $dbname
-             * @param string $dbhost
-             * @param string $dbuser
-             * @param string $dbpw
              */
-            public function __construct($dbname,$dbhost,$dbuser,$dbpw){
-                parent::__construct($dbname,$dbhost,$dbuser,$dbpw);
-                PushMessage::createTables();
+            public function __construct($db){
+                $this->dbc = $db;
+                $this->createTables();
             }
             /**
              * Function to create message table in database
              */
             private function createTables(){
-                $s = "CREATE TABLE IF NOT EXISTS grc_messages(id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL, _from VARCHAR(150) NOT NULL, _read TINYINT(1) NOT NULL DEFAULT 0, _to INT NOT NULL, TTL BIGINT NOT NULL DEFAULT 0, sender VARCHAR(150) NOT NULL, created BIGINT NOT NULL DEFAULT 0, _message VARCHAR(5000) NOT NULL, urgency VARCHAR(25) DEFAULT 'low')";
-                parent::executePreparedWriteingQuery($s,[]);
+                $s = "CREATE TABLE IF NOT EXISTS grc_messages(id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL, 
+                        _from VARCHAR(150) NOT NULL, 
+                        _read TINYINT(1) NOT NULL DEFAULT 0, 
+                        _to INT NOT NULL, 
+                        TTL BIGINT NOT NULL DEFAULT 0, 
+                        sender VARCHAR(150) NOT NULL, 
+                        created BIGINT NOT NULL DEFAULT 0, 
+                        _message VARCHAR(5000) NOT NULL, 
+                        urgency VARCHAR(25) DEFAULT 'low'
+                    )";
+                $this->dbc->write_to_database($s,[]);
             }
             /**
              * Creates a message row in the database table for messages to be recalled by read
@@ -38,11 +43,36 @@
              * @param string $service Special value for name of the service of the messenger, for instance check in would have check in notifier. This doesnt mean much at this time but will have more weight later on.
              * @return void
              */
-            public function create_message($to,$message,$ttl,$from,$urgency,$service){
-                $s =""; $b =[];
-                $s="INSERT INTO grc_messages(_from,_to,sender,TTL,created,_message,urgency,_read)VALUES(?,?,?,?,?,?,?,?)";
-                $b=[$from,(int)$to,$service,(int)$ttl,time(),$message,$urgency,0];
-                parent::executePreparedWriteingQuery($s,$b,false);
+            public function create_message($to, $message, $ttl, $from, $urgency, $service) {
+                $s = "INSERT INTO grc_messages(_from,
+                        _to,
+                        sender,
+                        TTL,
+                        created,
+                        _message,
+                        urgency,
+                        _read
+                        )VALUES(
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?
+                        )";
+                $b = [
+                    $from,
+                    (int)$to,
+                    $service,
+                    (int)$ttl,
+                    time(),
+                    $message,
+                    $urgency,
+                    0
+                ];
+                $this->dbc->write_to_databse($s, $b);
             }
             /**
              * Retreives all messages for user, and returns the values to an array, then marks the messages as being read so that they dont repeat.
@@ -50,16 +80,19 @@
              * @return array
              */
             public function read_message($f){
-                $e=[];$m=[];$c=0;$v=[];
-                $s="SELECT * FROM messages WHERE _to = ? AND _read = 0";
-                $b=[(int)$f[0]['usr']];
-                $e=parent::executePreparedReadingQuery($s,$b);
-                for ($i=0; $i < count($e); $i++) {
-                    $v[]=(int)$e[$i]['id'];
+                $e = [];
+                $m = [];
+                $c = 0;
+                $v = [];
+                $s = "SELECT * FROM messages WHERE _to = ? AND _read = 0";
+                $b = [(int)$f[0]['usr']];
+                $e = $this->dbc->read_from_database($s, $b);
+                for ($i = 0; $i < count($e); $i++) {
+                    $v[] = (int)$e[$i]['id'];
                 }
-                $m=$e;
+                $m = $e;
                 if (count($v)>0) {
-                    parent::execute_prepared_write_query_with_transaction("UPDATE grc_messages SET _read = 1 WHERE id = ?",$v,'i');
+                    $this->dbc->write_to_database("UPDATE grc_messages SET _read = 1 WHERE id = ?",$v);
                 }
                 return $m;
             }
