@@ -1,6 +1,5 @@
 <?php
     namespace JesseFender\Encoder{
-
         class Encoder{
             private $Token;
             public function __construct($value){
